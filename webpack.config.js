@@ -15,9 +15,8 @@ module.exports = {
             { test: /\.js$/, loader: 'babel', exclude: /node_modules/ },
         ]
     },
-    plugins: [new HtmlWebpackPlugin(
-      title: 'aaa',
-      filename: 'index.html'
-
-    )]
+    plugins: [new HtmlWebpackPlugin({
+        title: 'aaa',
+        filename: '../index.html'
+    })]
 };
