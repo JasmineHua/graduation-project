@@ -12,11 +12,13 @@ module.exports = {
     module: {
         //加载器配置
         loaders: [
-            { test: /\.js$/, loader: 'babel', exclude: /node_modules/ },
+            {test: /\.js$/, loader: 'babel', exclude: /node_modules/},
+            {test: /\.less$/, loader: 'style!css!less'}
         ]
     },
     plugins: [new HtmlWebpackPlugin({
-        title: 'aaa',
-        filename: '../index.html'
+        title: 'Graduation Project',
+        filename: '../index.html',
+        template: 'src/template/index.html'
     })]
 };

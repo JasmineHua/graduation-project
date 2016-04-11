@@ -4,12 +4,15 @@
   "description": "毕设",
   "main": "index.js",
   "scripts": {
-    "start": "webpack --watch",
+    "start": "npm run webpack & npm run browser-sync",
+    "browser-sync": "browser-sync start --server --files static/**,index.html",
+    "webpack": "webpack --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "jasmineHua",
   "license": "ISC",
   "dependencies": {
+    "antd": "^0.12.13",
     "react": "^0.14.8"
   },
   "devDependencies": {
