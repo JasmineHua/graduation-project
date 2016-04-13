@@ -1,29 +1,34 @@
 import React from 'react'
 import ReactDom from 'react-dom'
-import {DatePicker,message} from 'antd'
+import {DatePicker,message, Button, Dropdown} from 'antd'
 import '../node_modules/antd/style/index.less'
+import {Navigator} from './view/navigator.js'
 
-const App = React.createClass({
+
+const Foo = React.createClass({
   getInitialState() {
     return {
-      date: ''
+      bar: false
     };
   },
-  handleChange(value) {
-    message.info('您选择的日期是: ' + value.toString());
+  handleClick:function() {
     this.setState({
-      date: value
-    });
+      bar:!this.state.bar
+    })
   },
-  render() {
-    return <div style={{width: 400, margin: '100px auto'}}>
-      <DatePicker onChange={this.handleChange} />
-      <div style={{marginTop: 20}}>当前日期：{this.state.date.toString()}</div>
-    </div>;
+  render(){
+    return <div>
+    <div onClick={this.handleClick}>1</div>
+    {this.state.bar && <Navigator>2</Navigator>}
+
+    </div>
   }
-});
+})
 
 ReactDom.render(
-  <App />,
+  <div>
+  <Foo />
+
+  </div>,
   document.getElementById('app')
 )
