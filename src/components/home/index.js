@@ -17,7 +17,7 @@ const Home = React.createClass({
             .ant-menu-horizontal .ant-menu-item a{
               color: #eee
             }
-            `}
+          `}
 
         </style>
       </div>
