@@ -1,11 +1,12 @@
 import React from 'react'
+import {Login} from '../login/index.js'
 // import './home.less'
 
 const Home = React.createClass({
   render(){
     return(
       <div>
-        <div>qq</div>
+        <Login></Login>
         <style>
           {`
             .ant-layout-top .ant-layout-header  {

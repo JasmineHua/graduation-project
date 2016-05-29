@@ -20504,6 +20504,7 @@
 	 * - **             Consumes (greedy) all characters up to the next character
 	 *                  in the pattern, or to the end of the URL if there is none
 	 *
+	 *  The function calls callback(error, matched) when finished.
 	 * The return value is an object with the following properties:
 	 *
 	 * - remainingPathname
@@ -23306,13 +23307,17 @@
 	  // Only try to match the path if the route actually has a pattern, and if
 	  // we're not just searching for potential nested absolute paths.
 	  if (remainingPathname !== null && pattern) {
-	    var matched = (0, _PatternUtils.matchPattern)(pattern, remainingPathname);
-	    if (matched) {
-	      remainingPathname = matched.remainingPathname;
-	      paramNames = [].concat(paramNames, matched.paramNames);
-	      paramValues = [].concat(paramValues, matched.paramValues);
-	    } else {
-	      remainingPathname = null;
+	    try {
+	      var matched = (0, _PatternUtils.matchPattern)(pattern, remainingPathname);
+	      if (matched) {
+	        remainingPathname = matched.remainingPathname;
+	        paramNames = [].concat(paramNames, matched.paramNames);
+	        paramValues = [].concat(paramValues, matched.paramValues);
+	      } else {
+	        remainingPathname = null;
+	      }
+	    } catch (error) {
+	      callback(error);
 	    }
 
 	    // By assumption, pattern is non-empty here, which is the prerequisite for
@@ -25126,7 +25131,11 @@
 	  var useRefresh = !isSupported || forceRefresh;
 
 	  function getCurrentLocation(historyState) {
-	    historyState = historyState || window.history.state || {};
+	    try {
+	      historyState = historyState || window.history.state || {};
+	    } catch (e) {
+	      historyState = {};
+	    }
 
 	    var path = _DOMUtils.getWindowPath();
 	    var _historyState = historyState;
@@ -33865,20 +33874,20 @@
 /* 357 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// export this package's api
 	'use strict';
 
-	Object.defineProperty(exports, '__esModule', {
+	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 	var _Align = __webpack_require__(358);
 
 	var _Align2 = _interopRequireDefault(_Align);
 
-	exports['default'] = _Align2['default'];
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	exports["default"] = _Align2["default"]; // export this package's api
+
 	module.exports = exports['default'];
 
 /***/ },
@@ -33887,11 +33896,9 @@
 
 	'use strict';
 
-	Object.defineProperty(exports, '__esModule', {
+	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 	var _react = __webpack_require__(82);
 
@@ -33911,8 +33918,10 @@
 
 	var _isWindow2 = _interopRequireDefault(_isWindow);
 
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
 	function buffer(fn, ms) {
-	  var timer = undefined;
+	  var timer = void 0;
 	  return function bufferFn() {
 	    if (timer) {
 	      clearTimeout(timer);
@@ -33921,7 +33930,7 @@
 	  };
 	}
 
-	var Align = _react2['default'].createClass({
+	var Align = _react2["default"].createClass({
 	  displayName: 'Align',
 
 	  propTypes: {
@@ -33941,37 +33950,31 @@
 	        return window;
 	      },
 	      onAlign: function onAlign() {},
+
 	      monitorBufferTime: 50,
 	      monitorWindowResize: false,
 	      disabled: false
 	    };
 	  },
-
 	  componentDidMount: function componentDidMount() {
 	    var props = this.props;
 	    // if parent ref not attached .... use document.getElementById
-	    if (!props.disabled) {
-	      var source = _reactDom2['default'].findDOMNode(this);
-	      props.onAlign(source, (0, _domAlign2['default'])(source, props.target(), props.align));
-	      if (props.monitorWindowResize) {
-	        this.startMonitorWindowResize();
-	      }
+	    this.forceAlign();
+	    if (!props.disabled && props.monitorWindowResize) {
+	      this.startMonitorWindowResize();
 	    }
 	  },
-
 	  componentDidUpdate: function componentDidUpdate(prevProps) {
 	    var reAlign = false;
 	    var props = this.props;
-	    var currentTarget = undefined;
 
 	    if (!props.disabled) {
 	      if (prevProps.disabled || prevProps.align !== props.align) {
 	        reAlign = true;
-	        currentTarget = props.target();
 	      } else {
 	        var lastTarget = prevProps.target();
-	        currentTarget = props.target();
-	        if ((0, _isWindow2['default'])(lastTarget) && (0, _isWindow2['default'])(currentTarget)) {
+	        var currentTarget = props.target();
+	        if ((0, _isWindow2["default"])(lastTarget) && (0, _isWindow2["default"])(currentTarget)) {
 	          reAlign = false;
 	        } else if (lastTarget !== currentTarget) {
 	          reAlign = true;
@@ -33980,8 +33983,7 @@
 	    }
 
 	    if (reAlign) {
-	      var source = _reactDom2['default'].findDOMNode(this);
-	      props.onAlign(source, (0, _domAlign2['default'])(source, currentTarget, props.align));
+	      this.forceAlign();
 	    }
 
 	    if (props.monitorWindowResize && !props.disabled) {
@@ -33990,38 +33992,33 @@
 	      this.stopMonitorWindowResize();
 	    }
 	  },
-
 	  componentWillUnmount: function componentWillUnmount() {
 	    this.stopMonitorWindowResize();
 	  },
-
-	  onWindowResize: function onWindowResize() {
-	    var props = this.props;
-	    if (!props.disabled) {
-	      var source = _reactDom2['default'].findDOMNode(this);
-	      props.onAlign(source, (0, _domAlign2['default'])(source, props.target(), props.align));
-	    }
-	  },
-
 	  startMonitorWindowResize: function startMonitorWindowResize() {
 	    if (!this.resizeHandler) {
-	      this.resizeHandler = _rcUtil.Dom.addEventListener(window, 'resize', buffer(this.onWindowResize, this.props.monitorBufferTime));
+	      this.resizeHandler = _rcUtil.Dom.addEventListener(window, 'resize', buffer(this.forceAlign, this.props.monitorBufferTime));
 	    }
 	  },
-
 	  stopMonitorWindowResize: function stopMonitorWindowResize() {
 	    if (this.resizeHandler) {
 	      this.resizeHandler.remove();
 	      this.resizeHandler = null;
 	    }
 	  },
-
+	  forceAlign: function forceAlign() {
+	    var props = this.props;
+	    if (!props.disabled) {
+	      var source = _reactDom2["default"].findDOMNode(this);
+	      props.onAlign(source, (0, _domAlign2["default"])(source, props.target(), props.align));
+	    }
+	  },
 	  render: function render() {
 	    var _props = this.props;
 	    var childrenProps = _props.childrenProps;
 	    var children = _props.children;
 
-	    var child = _react2['default'].Children.only(children);
+	    var child = _react2["default"].Children.only(children);
 	    if (childrenProps) {
 	      var newProps = {};
 	      for (var prop in childrenProps) {
@@ -34029,13 +34026,13 @@
 	          newProps[prop] = this.props[childrenProps[prop]];
 	        }
 	      }
-	      return _react2['default'].cloneElement(child, newProps);
+	      return _react2["default"].cloneElement(child, newProps);
 	    }
 	    return child;
 	  }
 	});
 
-	exports['default'] = Align;
+	exports["default"] = Align;
 	module.exports = exports['default'];
 
 /***/ },
@@ -35095,14 +35092,12 @@
 	  value: true
 	});
 	exports["default"] = isWindow;
-
 	function isWindow(obj) {
 	  /* eslint no-eq-null: 0 */
 	  /* eslint eqeqeq: 0 */
 	  return obj != null && obj == obj.window;
 	}
-
-	module.exports = exports["default"];
+	module.exports = exports['default'];
 
 /***/ },
 /* 368 */
@@ -35373,14 +35368,14 @@
 	    if (this.isValidChildByKey(currentChildren, key)) {
 	      this.performEnter(key);
 	    } else {
-	      if (_util2['default'].allowLeaveCallback(props)) {
-	        props.onLeave(key);
-	        props.onEnd(key, false);
-	      }
 	      if (this.isMounted() && !(0, _ChildrenUtils.isSameChildren)(this.state.children, currentChildren, props.showProp)) {
 	        this.setState({
 	          children: currentChildren
 	        });
+	      }
+	      if (_util2['default'].allowLeaveCallback(props)) {
+	        props.onLeave(key);
+	        props.onEnd(key, false);
 	      }
 	    }
 	  },
@@ -49136,7 +49131,7 @@
 	    var props = this.props;
 	    var stepString = props.step.toString();
 	    if (stepString.indexOf('e-') >= 0) {
-	      return parseInt(stepString.slice(stepString.indexOf('-e')), 10);
+	      return parseInt(stepString.slice(stepString.indexOf('e-')), 10);
 	    }
 	    var precision = 0;
 	    if (stepString.indexOf('.') >= 0) {
@@ -49241,11 +49236,11 @@
 	        upDisabledClass = prefixCls + '-handler-up-disabled';
 	      }
 	      if (val <= props.min) {
-	        downDisabledClass = prefixCls + '-handler-up-disabled';
+	        downDisabledClass = prefixCls + '-handler-down-disabled';
 	      }
 	    } else {
 	      upDisabledClass = prefixCls + '-handler-up-disabled';
-	      downDisabledClass = prefixCls + '-handler-up-disabled';
+	      downDisabledClass = prefixCls + '-handler-down-disabled';
 	    }
 
 	    // focus state, show input value
@@ -49600,13 +49595,16 @@
 	          style: props.style
 	        },
 	        _react2["default"].createElement('span', { className: prefixCls + '-inner' }),
-	        _react2["default"].createElement('input', _extends({}, props, {
+	        _react2["default"].createElement('input', {
+	          type: props.type,
+	          readOnly: props.readOnly,
+	          disabled: props.disabled,
 	          className: prefixCls + '-input',
 	          checked: !!checked,
 	          onFocus: this.handleFocus,
 	          onBlur: this.handleBlur,
 	          onChange: this.handleChange
-	        }))
+	        })
 	      );
 	    }
 	  }]);
@@ -49628,15 +49626,16 @@
 	  };
 
 	  this.handleChange = function (e) {
-	    var checked = e.target.checked;
+	    var checked = _this2.state.checked;
+
 	    if (!('checked' in _this2.props)) {
 	      _this2.setState({
-	        checked: checked ? 1 : 0
+	        checked: !checked
 	      });
 	    }
 	    _this2.props.onChange({
 	      target: _extends({}, _this2.props, {
-	        checked: checked
+	        checked: !checked
 	      }),
 	      stopPropagation: function stopPropagation() {
 	        e.stopPropagation();
@@ -75214,6 +75213,8 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _index = __webpack_require__(665);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// import './home.less'
@@ -75224,11 +75225,7 @@
 	    return _react2.default.createElement(
 	      'div',
 	      null,
-	      _react2.default.createElement(
-	        'div',
-	        null,
-	        'qq'
-	      ),
+	      _react2.default.createElement(_index.Login, null),
 	      _react2.default.createElement(
 	        'style',
 	        null,
@@ -75238,6 +75235,132 @@
 	  }
 	});
 	exports.Home = Home;
+
+/***/ },
+/* 665 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.Login = undefined;
+
+	var _react = __webpack_require__(82);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _antd = __webpack_require__(301);
+
+	var _form = __webpack_require__(666);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var Login = _react2.default.createClass({
+	  displayName: 'Login',
+	  getInitialState: function getInitialState() {
+	    return { visible: false };
+	  },
+	  showModal: function showModal() {
+	    this.setState({
+	      visible: true
+	    });
+	  },
+	  render: function render() {
+	    return _react2.default.createElement(
+	      'div',
+	      null,
+	      _react2.default.createElement(
+	        _antd.Button,
+	        { type: 'primary', onClick: this.showModal },
+	        '显示对话框'
+	      ),
+	      _react2.default.createElement(
+	        _antd.Modal,
+	        { title: 'log in', visible: this.state.visible },
+	        _react2.default.createElement(_form.Demo, null)
+	      )
+	    );
+	  }
+	});
+
+	exports.Login = Login;
+
+/***/ },
+/* 666 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.Demo = undefined;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _react = __webpack_require__(82);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _antd = __webpack_require__(301);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var FormItem = _antd.Form.Item;
+
+	var Demo = _react2.default.createClass({
+	  displayName: 'Demo',
+	  handleSubmit: function handleSubmit(e) {
+	    e.preventDefault();
+	    console.log('收到表单值：', this.props.form.getFieldsValue());
+	  },
+	  render: function render() {
+	    var getFieldProps = this.props.form.getFieldProps;
+
+	    var formItemLayout = {
+	      labelCol: { span: 4 },
+	      wrapperCol: { span: 12 }
+	    };
+	    return _react2.default.createElement(
+	      _antd.Form,
+	      { horizontal: true, onSubmit: this.handleSubmit },
+	      _react2.default.createElement(
+	        FormItem,
+	        _extends({}, formItemLayout, { label: '用户名：' }),
+	        _react2.default.createElement(_antd.Input, _extends({ placeholder: '请输入账户名' }, getFieldProps('userName')))
+	      ),
+	      _react2.default.createElement(
+	        FormItem,
+	        _extends({}, formItemLayout, { label: '密码：' }),
+	        _react2.default.createElement(_antd.Input, _extends({ type: 'password', placeholder: '请输入密码' }, getFieldProps('password')))
+	      ),
+	      _react2.default.createElement(
+	        FormItem,
+	        formItemLayout,
+	        _react2.default.createElement(
+	          _antd.Checkbox,
+	          getFieldProps('agreement'),
+	          '记住我'
+	        )
+	      ),
+	      _react2.default.createElement(
+	        FormItem,
+	        formItemLayout,
+	        _react2.default.createElement(
+	          _antd.Button,
+	          { type: 'primary', htmlType: 'submit' },
+	          '登录'
+	        )
+	      )
+	    );
+	  }
+	});
+
+	exports.Demo = Demo = _antd.Form.create()(Demo);
+
+	exports.Demo = Demo;
 
 /***/ }
 /******/ ]);
