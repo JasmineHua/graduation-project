@@ -11,8 +11,8 @@ let Demo = React.createClass({
   render() {
     const { getFieldProps } = this.props.form;
     const formItemLayout = {
-      labelCol: { span: 4 },
-      wrapperCol: { span: 12 },
+      labelCol: { span: 6 },
+      wrapperCol: { span: 14 },
     };
     return (
       <Form horizontal onSubmit={this.handleSubmit}>
@@ -22,10 +22,7 @@ let Demo = React.createClass({
         <FormItem {...formItemLayout} label="密码：">
         <Input type="password" placeholder="请输入密码" {...getFieldProps('password')} />
         </FormItem>
-        <FormItem {...formItemLayout}>
-          <Checkbox {...getFieldProps('agreement')}>记住我</Checkbox>
-        </FormItem>
-        <FormItem {...formItemLayout}>
+        <FormItem wrapperCol={{ span: 12, offset: 4 }}>
           <Button type="primary" htmlType="submit">登录</Button>
         </FormItem>
       </Form>

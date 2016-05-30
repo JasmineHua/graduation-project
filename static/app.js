@@ -75267,6 +75267,18 @@
 	      visible: true
 	    });
 	  },
+	  handleOk: function handleOk() {
+	    console.log('点击了确定');
+	    this.setState({
+	      visible: false
+	    });
+	  },
+	  handleCancel: function handleCancel(e) {
+	    console.log(e);
+	    this.setState({
+	      visible: false
+	    });
+	  },
 	  render: function render() {
 	    return _react2.default.createElement(
 	      'div',
@@ -75278,7 +75290,7 @@
 	      ),
 	      _react2.default.createElement(
 	        _antd.Modal,
-	        { title: 'log in', visible: this.state.visible },
+	        { title: 'log in', visible: this.state.visible, onOk: this.handleOk, onCancel: this.handleCancel },
 	        _react2.default.createElement(_form.Demo, null)
 	      )
 	    );
@@ -75320,8 +75332,8 @@
 	    var getFieldProps = this.props.form.getFieldProps;
 
 	    var formItemLayout = {
-	      labelCol: { span: 4 },
-	      wrapperCol: { span: 12 }
+	      labelCol: { span: 6 },
+	      wrapperCol: { span: 14 }
 	    };
 	    return _react2.default.createElement(
 	      _antd.Form,
@@ -75338,16 +75350,7 @@
 	      ),
 	      _react2.default.createElement(
 	        FormItem,
-	        formItemLayout,
-	        _react2.default.createElement(
-	          _antd.Checkbox,
-	          getFieldProps('agreement'),
-	          '记住我'
-	        )
-	      ),
-	      _react2.default.createElement(
-	        FormItem,
-	        formItemLayout,
+	        { wrapperCol: { span: 12, offset: 4 } },
 	        _react2.default.createElement(
 	          _antd.Button,
 	          { type: 'primary', htmlType: 'submit' },
